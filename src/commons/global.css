@@ -1,0 +1,107 @@
+html {
+  background-color: #F3F3F3;
+  font-family: "微软雅黑";
+  font-size: 14px;
+  
+  /*去掉界面复制*/
+  user-select: none;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.tdx-loading {
+  background: url(../res/loading_white.gif) center center no-repeat;
+  height: 100px;
+}
+
+.tdx-nodata {
+  line-height: 40px;
+  font-size: 16px;
+  color: red;
+  padding-left: 20px;
+}
+
+.tdx-more {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.8rem;
+  background: url(../res/arrow.png) center center no-repeat;
+  background-size: 100% 100%;
+}
+
+.tdx-404 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  line-height: 50px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.tdx-404-img {
+  background: url(../res/404.png) center center no-repeat;
+  background-size: 100% 100%;
+  width: 150px;
+  height: 150px;
+}
+
+/* ----------------------排序图标------------------------*/
+.tdx-sort-asc {
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background: url(../res/sort-asc.png) center center no-repeat;
+  background-size: 100% 100%;
+}
+
+.tdx-sort-desc {
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background: url(../res/sort-desc.png) center center no-repeat;
+  background-size: 100% 100%;
+}
+/* ----------------------排序图标------------------------*/
+
+/* ----------------------小卡片样式------------------------*/
+.card-blue,
+.card-gray,
+.card-orange,
+.card-blue2 {
+  display: inline-block;
+  width: 52px;
+  height: 19px;
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 19px;
+  text-align: center;
+  margin: 0 3px;
+}
+
+.card-blue {
+  border: 1px solid #4696F5;
+  background: #4696F5;
+  color: #fff;
+}
+
+.card-blue2 {
+  border: 1px solid #4696F5;
+  color: #4696F5;
+}
+
+.card-gray {
+  border: 1px solid #B4B4B4;
+  color: #B4B4B4;
+}
+
+.card-orange {
+  border: 1px solid #F9B349;
+  background: #F9B349;
+  color: #fff;
+}
+
+/* ----------------------小卡片样式------------------------*/
