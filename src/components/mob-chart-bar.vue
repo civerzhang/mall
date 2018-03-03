@@ -83,6 +83,19 @@ export default {
           chart: {
             type: "column"
           },
+          plotOptions: {
+              series: {
+                  events: {
+                      legendItemClick: function () {
+                          return false;
+                      }
+                  }
+              }
+          },
+          tooltip: {
+              shared: true,
+              hideDelay:500
+          },
           xAxis: {
             categories: x,
             labels: {
@@ -116,10 +129,13 @@ export default {
     }
   },
 
+  mounted: function() {
+    this.drawChart();
+  },
+
   updated: function() {
 
     this.drawChart();
-    // console.log(`mobChartBar: ${this.rows}`);
   }
 }
 

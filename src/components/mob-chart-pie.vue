@@ -51,7 +51,7 @@
       <div class="col2row" v-for="(ix, index) in x">
         <span class="card" :style="getRectStyle(index)"></span>
         <span class="info">{{ix}}</span>
-        <span class="info">{{row[y[index]] || "--"}}</span>
+        <span class="info">{{getValue(row[y[index]])}}</span>
       </div>
     </div>
     <div class="col1" :id="`chart${rn}`"></div>
@@ -65,7 +65,8 @@
 
 import {
   getRnHex,
-  hcDefConf
+  hcDefConf,
+  toMoneyFormat
 } from "commons/func.js";
   
 export default {
@@ -91,6 +92,11 @@ export default {
       return {
         "backgroundColor": this.colors[index]
       };
+    },
+
+    getValue: function(value) {
+
+      return toMoneyFormat(value, 2);
     },
 
     draw: function() {

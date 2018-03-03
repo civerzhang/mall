@@ -39,7 +39,14 @@ const run = () => {
 run();
 
 // 定义当前 View 激活事件
-window["tdxActivity"] = run;
+window["tdxActivity"] = () => {
+  if (__tdxMobSystem == "Android") {
+    run();
+  } else {
+    window.location.href = window.location.href;
+  }
+
+};
 
 // 定义刷新事件
 window["tdxRefresh"] = () => {

@@ -125,6 +125,35 @@ export default {
             }
           },
 
+          yAxis: {
+            tickPositioner: function() {
+              // this.dataMax = this.dataMax*1000;
+              // this.dataMin = this.dataMin*1000;
+              let myPositions = [];
+              if(this.dataMax==this.dataMin){
+                return [this.dataMax-this.dataMax,this.dataMax,this.dataMax+this.dataMax];
+              }
+              
+              let increment = (this.dataMax - this.dataMin) / 4;
+              // increment = increment.toFixed(3);
+              let tick = this.dataMin-increment;
+              for (tick; tick - increment*2 <= this.dataMax; tick += increment) {
+                myPositions.push(tick);
+              }
+              return myPositions.map(x=>x.toFixed(4));
+            },
+          },
+
+          plotOptions: {
+              series: {
+                  events: {
+                      legendItemClick: function () {
+                          return false;
+                      }
+                  }
+              }
+          },
+          
           series: [
             {
               data: y,
@@ -133,7 +162,6 @@ export default {
           ]
         };
 
-        debugger;
         new Highcharts.Chart(`chart${this.rn}`, $.extend(true, {}, hcDefConf, conf));
       }
     }

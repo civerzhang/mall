@@ -74,7 +74,14 @@ export default {
   methods: {
 
     autoHeight: function() {
-      $(`#box${this.rn}`).css("height", $(window).height());
+      let lht = localStorage.jjHeight || 0;
+      let wht = $(window).height();
+      if(lht <= wht) {
+        localStorage.jjHeight = wht;
+        lht = wht;
+      }
+
+      $(`#box${this.rn}`).css("height", lht);
     },
 
     page: function() {

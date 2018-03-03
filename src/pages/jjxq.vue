@@ -71,18 +71,18 @@
       />
       <mob-split />
       <mob-bar 
-        v-if = "!isHbjj"
+        v-if = "showZczh"
         title = "基金投资组合资产明细"
       />
       <mob-chart-bar
-        v-if = "!isHbjj"
+        v-if = "showZczh"
         style = "height: 190px;"
-        :rows = "getZczhData()"
+        :rows = "zczhData"
         :loading = "zczhLoading"
         x = "date"
         :y = "getZczhY"
       />
-      <mob-split v-if="!isHbjj"/>
+      <mob-split v-if="showZczh"/>
       <mob-bar title = "相关协议" />
       <mob-list-info 
         :items = "getXysList"
@@ -107,7 +107,8 @@ import {
   getRnHex
 } from "commons/func.js";
 import {
-  tdxOpenUrl
+  tdxOpenUrl,
+  __isLoginNormal
 } from "commons/req.js";
 
 import mobCardInfo from "components/mob-card-info.vue";
@@ -147,38 +148,7 @@ const listInfoItems = [
   { title: "基金经理", field: "fund_manager" }
 ];
 
-let xysList = [
-  { 
-    title: "产品协议书", 
-    urlParam: {
-      OpenName: "产品协议书",
-      OpenUrl: "http://www.baidu.com",
-      OpenParam: {
-        UrlType: "Remote"
-      }
-    } 
-  },
-  { 
-    title: "产品说明书", 
-    urlParam: {
-      OpenName: "产品协议书",
-      OpenUrl: "http://www.baidu.com",
-      OpenParam: {
-        UrlType: "Remote"
-      }
-    } 
-  },
-  { 
-    title: "风险揭示书", 
-    urlParam: {
-      OpenName: "产品协议书",
-      OpenUrl: "http://www.baidu.com",
-      OpenParam: {
-        UrlType: "Remote"
-      }
-    } 
-  },
-];
+let xysList = [];
 
 const btns = [
   {
@@ -245,6 +215,13 @@ export default {
         "pro_type2": pro_type2
       }], response => {
 
+        if (typeof response == 'string') {
+          response = response.replace(/\r\n/ig, "<br>");
+          // data = data.replace(/\s/g, "");
+          // 转换类型防止空格被格式化
+          response = JSON.parse(response);
+        }
+	
         let data = FormatResult(response);
         if(data.ErrorCode != 0) {
           tdxAlert(data.ErrorInfo);
@@ -262,6 +239,13 @@ export default {
             "pro_type": ""
           }], response => {
 
+            if (typeof response == 'string') {
+              response = response.replace(/\r\n/ig, "<br>");
+              // data = data.replace(/\s/g, "");
+              // 转换类型防止空格被格式化
+              response = JSON.parse(response);
+            }
+            
             let data = FormatResult(response);
             if(data.ErrorCode != 0) {
               tdxAlert(data.ErrorInfo);
@@ -324,29 +308,22 @@ export default {
     // 获取资产配置数据
     getZczhData: function() {
 
-      if(this.zczh) {
+      this.zczhLoading = true;
+      __hqCallTql.send("CWServ.tdxzx_jyfunc", [{
+        "callno": "104",
+        "pro_code": pro_code,
+        "pro_mm": "-12"
+      }], response => {
+
         this.zczhLoading = false;
-        return this.zczh;
-      }
-      else {
+        let data = FormatResult(response);
+        if(data.ErrorCode != 0) {
+          tdxAlert(data.ErrorInfo);
+          return;
+        }
 
-        __hqCallTql.send("CWServ.tdxzx_jyfunc", [{
-          "callno": "104",
-          "pro_code": pro_code,
-          "pro_mm": "-12"
-        }], response => {
-
-          this.zczhLoading = false;
-          let data = FormatResult(response);
-          if(data.ErrorCode != 0) {
-            tdxAlert(data.ErrorInfo);
-            return;
-          }
-
-          this.zczh = data.rows;
-          return this.zczh;
-        });
-      }
+        this.zczh = data.rows;
+      });
     },
 
     // 按钮点击响应
@@ -419,7 +396,8 @@ export default {
               OpenUrl: data.rows[0].url,
               OpenParam: {
                 UrlType: "Remote"
-              }
+              },
+              OpenType: __tdxMobSystem == "Android" ? "browser" : "native"
             } 
           });
         }
@@ -463,6 +441,16 @@ export default {
   },
 
   computed: {
+
+    showZczh: function() {
+
+      let aa = !!(!this.isHbjj && this.zczh && this.zczh.length != 0);
+      return aa;
+    },
+
+    zczhData: function() {
+      return this.zczh;
+    },
 
     // 获取协议书列表
     getXysList: function() {
@@ -524,10 +512,10 @@ export default {
     this.getCpInfo();
     this.getXys("zms", "基金招募说明书");
     this.getCpZs(0);
+    this.getZczhData();
   },
 
   updated: function() {
-    // debugger;
   }
 }
 

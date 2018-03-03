@@ -102,7 +102,7 @@ import mobCardHot from "components/mob-card-hot.vue";
 
 const url = {
   OpenName: "产品详情",
-  OpenUrl: "jjxq.html",
+  OpenUrl: "../mall2/jjxq.html",
   QueryFields: [
     {
       name: "pro_code",

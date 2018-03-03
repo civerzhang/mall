@@ -44,7 +44,7 @@
   
 <div class="box">
   
-  <span class="info">账户总资产</span>
+  <span class="info">理财总资产</span>
   <div class="row">
     <span class="zj" :style="getZjStyle">{{getZj}}</span>
     <span class="btn" @click = "jumpYzzz">银证转账</span>

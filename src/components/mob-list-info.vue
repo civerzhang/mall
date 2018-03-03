@@ -97,6 +97,11 @@ export default {
     getValue: function(item) {
 
       let value = this.row[item.field];
+      
+      if (item.field=="fund_manager" && value) {
+debugger;
+        value = value.replace(/\s/g,'、')
+      }
 
       if(item.type) {
 

@@ -24,7 +24,7 @@
 }
 
 .nav {
-  font-size: 28px;
+  font-size: 30px;
   line-height: 40px;
   color: #ff4d34;
   margin-top: 10px;
@@ -63,7 +63,11 @@
       <span class="zf" :style="getStyle('rg', product.yzf)">{{getValue(product.yzf, '2%')}}</span>
       <span class="info">近一月涨跌</span>
     </div>
-    <div class="col">
+    <div class="col" v-if = "product.jnzf==undefined">
+      <span class="zf" :style="getStyle('rg', product.clzf)">{{getValue(product.clzf, '2%')}}</span>
+      <span class="info">成立以来涨跌</span>
+    </div>
+    <div class="col" v-else>
       <span class="zf" :style="getStyle('rg', product.jnzf)">{{getValue(product.jnzf, '2%')}}</span>
       <span class="info">今年以来涨跌</span>
     </div>

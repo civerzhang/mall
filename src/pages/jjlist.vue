@@ -36,7 +36,7 @@
     :orderField = "getListOrderField"
     :rows = "getListRows()"
     :sortClick = "sortClick"
-    :isLoading = "isLoading"
+    :loading = "isLoading"
     :pageQuery = "pageQuery"
     :pageSize = "getPageSize"
     :urlParam = "getUrlParam"
@@ -325,7 +325,14 @@ export default {
 
   mounted: function() {
 
-    $(`#list${this.rn}`).css("height", $(window).height());
+    let lht = localStorage.jjHeight || 0;
+    let wht = $(window).height();
+    if(lht <= wht) {
+      localStorage.jjHeight = wht;
+      lht = wht;
+    }
+
+    $(`#list${this.rn}`).css("height", lht);
     this.queryData();
   }
 }

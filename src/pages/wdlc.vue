@@ -13,6 +13,9 @@
     :y = "getY"
     :row = "getChartRow"
   />
+<!--   <div v-if="!cpzc || !zjye" style="padding: 3px;fontSize:14px;">
+    暂无产品数据,请前往购买！
+  </div> -->
   <mob-split />
   <mob-list-info 
     :items = "getItems"
@@ -25,8 +28,9 @@
 <script>
 
 import {
-  HqJyCallTql
-} from "commons/req.js"
+  HqJyCallTql,
+  __isLoginNormal
+} from "commons/req.js";
   
 import mobWdlcZc from "components/mob-wdlc-zc.vue";
 import mobChartPie from "components/mob-chart-pie.vue";
@@ -87,7 +91,7 @@ const items = [
     title: "历史订单查询",
     urlParam: {
       OpenName: "历史订单查询",
-      OpenUrl: "licai/licai/lscjcx.html",
+      OpenUrl: "licai/licai/lswtcx.html",
       OpenParam: {
         UrlType: "Absolute",
         WebViewType: "JyURL"
@@ -127,7 +131,9 @@ export default {
 
     getZj: function() {
 
-      hqJyCallTql.send("104", [{}], res => {
+      hqJyCallTql.send("104", [{
+        "1230": "1"
+      }], res => {
 
         let data = FormatResult(res);
         if(data.ErrorCode != 0) {
@@ -136,45 +142,70 @@ export default {
         }
 
         if(data.rows[0]) {
-          this.zj = data.rows[0]["310"];
-          this.zjye = data.rows[0]["300"];
+          this.zj = data.rows[0]["205"];
         }
 
-        this.chartRow.zjye = this.zjye;
         this.getCpzc();
       });
     },
 
     getCpzc: function() {
 
-      hqJyCallTql.send("104", [{ "1230": "1" }], res => {
+      let reccnt = 0;
 
+      // 获取基金持仓
+      hqJyCallTql.send("2606", [], res => {
+
+        reccnt ++;
         let data = FormatResult(res);
         if(data.ErrorCode != 0) {
           tdxAlert(data.ErrorInfo);
           return;
         }
 
-        if(data.rows[0]) {
-          this.cpzc = data.rows[0]["205"];
+        let cpzc = 0;
+        data.rows.map( row => {
+          cpzc += parseFloat(row["10001"]);
+        });
+
+        cpzc = cpzc.toFixed(2);
+        this.cpzc = cpzc;
+        this.chartRow.cpzc = cpzc;
+
+        if(reccnt == 2) {
+          this.loading = false;
         }
-        this.chartRow.cpzc = this.cpzc;
-        this.loading = false;
+      });
+
+      // 获取银行理财持仓
+      hqJyCallTql.send("2258", [], res => {
+
+        reccnt ++;
+        let data = FormatResult(res);
+        if(data.ErrorCode != 0) {
+          tdxAlert(data.ErrorInfo);
+          return;
+        }
+
+        let zjye = 0;
+        data.rows.map( row => {
+          zjye += parseFloat(row["10025"]);
+        });
+
+        this.zjye = zjye;
+        this.chartRow.zjye = zjye;
+        if(reccnt == 2) {
+          this.loading = false;
+        }
       });
     },
 
     getLogin: function() {
       
       // 如果登录，取用户信息
-      __webCallTql.send("tdxEnumTradeAcc", {}, res => {
+      __isLoginNormal( (flag, user) => {
 
-        let user;
-        if(typeof res == "string") {
-          user = JSON.parse(res)[0];
-        }
-        else {
-          user = JSON.parse(res);
-        }
+        __webCallTql.send("tdxChangeCurAcc", { SessionID: user.SessionID }, () => {});
 
         hqJyCallTql = new HqJyCallTql({
           "120": user.KHH,
@@ -183,6 +214,7 @@ export default {
 
         this.getZj();
       });
+
     }
   },
 
@@ -198,7 +230,7 @@ export default {
 
     getX: function() {
 
-      return ["现金", "基金"];
+      return ["银行理财", "基金"];
     },
 
     getY: function() {

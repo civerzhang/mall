@@ -29,7 +29,7 @@
 
 .head-item {
   flex-shrink: 0;
-  line-height: 36px;
+  /*line-height: 36px;*/
   text-align: center;
   display: flex;
   align-items: center;
@@ -54,7 +54,7 @@
     @scroll = "onScroll"
   >
     <div v-if="loading && rows.length == 0" class="tdx-loading"></div>
-    <div class="tdx-nodata" v-else-if="!rows || rows.length == 0">无查询数据！</div>
+    <div v-else-if="!rows || rows.length == 0" class="tdx-nodata">暂无查询数据！</div>
     <mob-card-list
       class = "row"
       :cols = "cols"

@@ -31,6 +31,39 @@ export const tdxOpenNativeModule = urlParam => {
   __webCallTql.send("tdxOpenNativeModule", param, () => {});
 };
 
+
+/*
+  兼容判断是否普通登录
+*/
+export const __isLoginNormal = callback => {
+
+  __webCallTql.send("tdxEnumTradeAcc", {}, res => {
+    
+    let isPtLogin = false;
+    let ptZhRow;
+    if(typeof res == "string") {
+      res = JSON.parse(res);
+    }
+    
+    for(let i = 0; i < res.length; i++) {
+
+      let zh = res[i];
+      if(typeof zh == "string") {
+        zh = JSON.parse(zh);
+      }
+
+      // 第一个普通账户
+      if(zh.HostType == 0) {
+        isPtLogin = true;
+        ptZhRow = zh;
+        break;
+      }
+    }
+
+    callback(isPtLogin, ptZhRow);
+  });
+};
+
 /*
   行情 session 发送交易请求
 */

@@ -5,62 +5,65 @@
 <template>
   
   <div>
-    <mob-zjzs 
-      v-if="isLogin && ccNum > 0"
-      :zj = "zj"
-      :sy = "sy"
-      :id = "`zjzs${this.rn}`"
-      :style = "zjzsStyle"
-      :zjShow = "zjShow"
-      :toggleZjShow = "toggleZjShow"
-    />
-    <mob-zjzs-simple 
-      v-if="isLogin && ccNum > 0 && this.scrollY > 50"
-      :zj = "zj"
-      :sy = "sy"
-      :jumpPage = "jumpToWdlc"
-      :zjShow = "zjShow"
-    />
-    <mob-tip
-      v-if="isLogin && ccNum == 0"
-      info = "您当前无持仓的理财产品，快去看看吧"
-    />
-    <mob-not-login 
-      v-if="!isLogin"
-      info = "安心理财，就在川财~登录后查看您的理财资产"
-      :btnClick = "loginClick"
-    />
-    <mob-nav 
-      :items = "navItems"
-    />
-    <mob-split />
-    <mob-card-single
-      v-if = "yyqt"
-      title = "一元起投"
-      subTitle = "理财无门槛，小钱也能钱生钱"
-      :product = "yyqt"
-    />
-    <mob-split v-if = "yyqt" />
-    <mob-card-single
-      v-if = "wjsy"
-      title = "稳健收益"
-      subTitle = "安心理财，稳定回报"
-      :product = "wjsy"
-    />
-    <mob-split v-if = "wjsy" />
-    <div class="img-gg">
-      <img src="res/banner.png" style="height: 100%; width: 100%;">
+    <div v-if="allLoading" class="tdx-loading"></div>
+    <div v-else>
+      <mob-zjzs 
+        v-if="isLogin && ccNum > 0"
+        :zj = "zj"
+        :sy = "sy"
+        :id = "`zjzs${this.rn}`"
+        :style = "zjzsStyle"
+        :zjShow = "zjShow"
+        :toggleZjShow = "toggleZjShow"
+      />
+      <mob-zjzs-simple 
+        v-if="isLogin && ccNum > 0 && this.scrollY > 50"
+        :zj = "zj"
+        :sy = "sy"
+        :jumpPage = "jumpToWdlc"
+        :zjShow = "zjShow"
+      />
+      <mob-tip
+        v-if="isLogin && ccNum == 0"
+        info = "您当前无持仓的理财产品"
+      />
+      <mob-not-login 
+        v-if="!isLogin"
+        info = "安心理财，就在川财~登录后查看您的理财资产"
+        :btnClick = "loginClick"
+      />
+      <mob-nav 
+        :items = "navItems"
+      />
+      <mob-split />
+      <mob-card-single
+        v-if = "yyqt"
+        title = "一元起投"
+        subTitle = "理财无门槛，小钱也能钱生钱"
+        :product = "yyqt"
+      />
+      <mob-split v-if = "yyqt" />
+      <mob-card-single
+        v-if = "wjsy"
+        title = "稳健收益"
+        subTitle = "安心理财，稳定回报"
+        :product = "wjsy"
+      />
+      <mob-split v-if = "wjsy" />
+      <div class="img-gg">
+        <img src="res/banner.png" style="height: 100%; width: 100%;display:block;">
+      </div>
+      <mob-split />
+      <mob-list-hot 
+        title = "大家都在看"
+        subTitle = "最热门产品"
+        :productList = "hot"
+      />
+      <mob-qs-logo 
+        img = "res/chuancailogo.png"
+        info = "川财证券，您的理财小棉袄"
+      />
     </div>
-    <mob-split />
-    <mob-list-hot 
-      title = "大家都在看"
-      subTitle = "最热门产品"
-      :productList = "hot"
-    />
-    <mob-qs-logo 
-      img = "res/chuancailogo.png"
-      info = "川财证券，您的理财小棉袄"
-    />
   </div>
 
 </template>
@@ -73,7 +76,8 @@ import {
 } from "commons/func.js";
 import { 
   tdxOpenUrl,
-  HqJyCallTql
+  HqJyCallTql,
+  __isLoginNormal
 } from "commons/req.js";
 
 import mobZjzs from "components/mob-zjzs.vue";
@@ -92,7 +96,7 @@ const navItems = [
     img: "res/nav-hq.png",
     urlParam: {
       OpenName: "活期理财",
-      OpenUrl: "hqlc.html"
+      OpenUrl: "../mall2/hqlc.html"
     }
   },
   {
@@ -108,7 +112,7 @@ const navItems = [
     img: "res/nav-jj.png",
     urlParam: {
       OpenName: "基金",
-      OpenUrl: "jjlc.html"
+      OpenUrl: "../mall2/jjlc.html"
     }
   }
 ];
@@ -144,7 +148,8 @@ export default {
       ccNum: 1,
       navItems,
       zj: "--",
-      sy: "--"
+      sy: "--",
+      allLoading: true
     };
   },
 
@@ -172,76 +177,104 @@ export default {
 
       tdxOpenUrl({
         OpenName: "我的理财",
-        OpenUrl: "wdlc.html"
+        OpenUrl: "../mall2/wdlc.html"
       });
     },
 
     // 检查账号操作
     doZhCheck: function() {
       // 判断是否已登录
-      __isLoginNormal( flag => {
+      __isLoginNormal( (flag, user) => {
+
+
         this.isLogin = flag;
 
         // 如果登录了，需要取持仓
         if(flag) {
 
-          // 如果登录，取用户信息
-          __webCallTql.send("tdxEnumTradeAcc", {}, res => {
+          __webCallTql.send("tdxChangeCurAcc", { SessionID: user.SessionID }, () => {});
+          
+          this.allLoading = true;
+          let loadNum = 0;
 
-            // debugger;
-            let user;
-
-            // ios
-            if(typeof res == "string") {
-              user = JSON.parse(res)[0];
-            }
-
-            // android
-            else {
-              user = JSON.parse(res);
-            }
-
-            hqJyCallTql = new HqJyCallTql({
-              "120": user.KHH,
-              "134": "#PASSWORD#"
-            });
-
-            hqJyCallTql.send("104", [{
-              "1230": "1"
-            }], res => {
-
-              let data = FormatResult(res);
-              if(data.ErrorCode != 0) {
-                tdxAlert(data.ErrorInfo);
-                return;
-              }
-
-              let row = data.rows[0];
-              if(row) {
-                this.zj = row["204"];
-                this.sy = row["205"];
-              }
-            });
-
-            hqJyCallTql.send("2606", {}, res => {
-
-              let data = FormatResult(res);
-              if(data.ErrorCode != 0) {
-                tdxAlert(data.ErrorInfo);
-                return;
-              }
-
-              this.ccNum = data.rows.length;
-            });
+          hqJyCallTql = new HqJyCallTql({
+            "120": user.KHH,
+            "134": "#PASSWORD#"
           });
 
-          // __jyCallTql.send("2106", [{}], data => {
-          //   data = FormatResult(data);
-          //   this.ccNum = data.rows.length;
-          // });
+          hqJyCallTql.send("104", [{
+            "1230": "1"
+          }], res => {
 
-          // __jyCallTql.send()
+            loadNum++;
+
+            let data = FormatResult(res);
+            if(data.ErrorCode != 0) {
+              tdxAlert(data.ErrorInfo);
+              return;
+            }
+
+            let row = data.rows[0];
+            if(row) {
+              this.zj = row["205"];
+              this.sy = row["204"];
+            }
+
+            if(loadNum == 3) {
+              this.allLoading = false;
+            }
+
+          });
+
+          let reccnt = 0;
+          let rowNum = 0;
+          // 基金持仓
+          hqJyCallTql.send("2606", {}, res => {
+
+            loadNum++;
+            reccnt ++;
+            let data = FormatResult(res);
+            if(data.ErrorCode != 0) {
+              tdxAlert(data.ErrorInfo);
+              return;
+            }
+
+            rowNum += data.rows.length || 0;
+            if(reccnt == 2) {
+              this.ccNum = rowNum;
+            }
+            if(loadNum == 3) {
+              this.allLoading = false;
+            }
+
+          });
+
+          // 理财持仓
+          hqJyCallTql.send("2258", {}, res => {
+
+            loadNum++;
+            reccnt ++;
+            let data = FormatResult(res);
+            if(data.ErrorCode != 0) {
+              tdxAlert(data.ErrorInfo);
+              return;
+            }
+
+            rowNum += data.rows.length || 0;
+            if(reccnt == 2) {
+              this.ccNum = rowNum;
+            }
+            if(loadNum == 3) {
+              this.allLoading = false;
+            }
+
+          });
+
         }
+        else {
+          this.allLoading = false;
+        }
+
       });
     },
 
@@ -291,10 +324,13 @@ export default {
           product.pro_type1 = row.pro_type1;
           product.pro_type2 = row.pro_type2;
           product.pro_status = row.pro_status;
-          product.cards = [
-            [row.pro_type2_name, "card-blue"],
-            [row.risk_level_name.replace(/等级/, ""), "card-gray"]
-          ];
+          product.cards = [];
+          if(row.pro_type2_name) {
+            product.cards.push([row.pro_type2_name, "card-blue"]);
+          }
+          if(row.risk_level_name) {
+            product.cards.push([row.risk_level_name.replace(/等级/, ""), "card-gray"]);
+          }
 
           if(row.pro_type2 != 12) {
             product.sy = ["最新净值", formatValueType(row.nav, ".4f")]; 
@@ -374,10 +410,13 @@ export default {
             list[index].pro_type1 = row.pro_type1;
             list[index].pro_type2 = row.pro_type2;
             list[index].col3 = ["起购金额", formatValueType(row.qgje, ".0f"), "0"];
-            list[index].cards = [
-              [row.pro_type2_name, "card-blue"],
-              [row.risk_level_name.replace(/等级/, ""), "card-gray"]
-            ];
+            list[index].cards = [];
+            if(row.pro_type2_name) {
+              list[index].cards.push([row.pro_type2_name, "card-blue"]);
+            }
+            if(row.risk_level_name) {
+              list[index].cards.push([row.risk_level_name.replace(/等级/, ""), "card-gray"]);
+            }
 
             if(row.pro_type2 != 12) {
               list[index].col2 = ["最新净值", formatValueType(row.nav, ".4f")];
@@ -407,7 +446,12 @@ export default {
                 list[index].col2 = ["万份收益", formatValueType(row.wfsy, ".4f")];
               }
               else {
-                list[index].col1 = ["今年以来涨幅", formatValueType(row.jnzf, "2%")];
+                if (row.jnzf==undefined) {
+                  list[index].col1 = ["成立以来涨幅", formatValueType(row.clzf, "2%")];
+                }else{
+                  list[index].col1 = ["今年以来涨幅", formatValueType(row.jnzf, "2%")];
+                }
+                
                 // list[index].col2 = ["最新净值", formatValueType(row.nav, ".4f")]; 
               }
             }

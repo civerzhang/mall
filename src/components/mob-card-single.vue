@@ -121,7 +121,8 @@
 */
 
 import {
-  tdxOpenUrl
+  tdxOpenUrl,
+  __isLoginNormal
 } from "commons/req.js";
   
 export default {
@@ -186,7 +187,7 @@ export default {
       let product = this.product;
       tdxOpenUrl({
         OpenName: "产品详情",
-        OpenUrl: `jjxq.html?pro_code=${product.code}&pro_type1=${product.pro_type1}&pro_type2=${product.pro_type2}`
+        OpenUrl: `../mall2/jjxq.html?pro_code=${product.code}&pro_type1=${product.pro_type1}&pro_type2=${product.pro_type2}`
       });
     } 
   }

@@ -35,6 +35,12 @@
   margin-left: 15px;
 }
 
+.bar-more-title {
+  font-size: 14px;
+  color: #B4B4B4;
+  margin-right: 5px;
+}
+
 </style>
 
 <template>
@@ -45,7 +51,10 @@
     <span class="title">{{title}}</span>
     <span class="subtitle">{{subTitle}}</span>
   </div>
-  <div class="tdx-more" v-if="url"></div>
+  <div class="bar-left">
+    <span class="bar-more-title">{{moreText}}</span>
+    <div class="tdx-more" v-if="url"></div>
+  </div>
 </div>
 
 </template>
@@ -62,7 +71,8 @@ export default {
   props: [
     "title",
     "sutTitle",
-    "url"
+    "url",
+    "moreText"
   ],
   data() {
     return {};
